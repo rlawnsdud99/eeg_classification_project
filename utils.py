@@ -19,7 +19,7 @@ np.set_printoptions(linewidth=np.inf)
 
 # Print
 def print_off():
-    sys.stdout = open(os.devnull, 'w')
+    sys.stdout = open(os.devnull, "w")
 
 
 def print_on():
@@ -37,7 +37,7 @@ def print_update(sentence, i):
 
     """
 
-    print(sentence, end='') if i == 0 else print('\r' + sentence, end='')
+    print(sentence, end="") if i == 0 else print("\r" + sentence, end="")
 
 
 def print_dict(dictionary):
@@ -94,8 +94,8 @@ def read_json(path):
 
 
 def h5py_read(path):
-    with h5py.File(path, 'r') as file:
-        data = file['data'][()]
+    with h5py.File(path, "r") as file:
+        data = file["data"][()]
         return data
 
 
@@ -127,15 +127,15 @@ def convert_list(string):
 
 
 def str2list_int(string):
-    if string == 'all':
-        return 'all'
+    if string == "all":
+        return "all"
     else:
         return list(map(int, string.split(",")))
 
 
 def str2list(string):
-    if string == 'all':
-        return 'all'
+    if string == "all":
+        return "all"
     else:
         return string.split(",")
 
@@ -162,13 +162,13 @@ def compatible_torch(func):
         _type = type(tensor)
         if _type == torch.Tensor:
             device = tensor.device.type
-            if device == 'cpu':
+            if device == "cpu":
                 tensor = tensor.numpy()
             else:
                 tensor = tensor.data.cpu().numpy()
         _return = func(tensor, *args)
         if _type == torch.Tensor:
-            if device == 'cpu':
+            if device == "cpu":
                 _return = torch.Tensor(_return)
             else:
                 _return = torch.Tensor(_return).cuda()
@@ -195,8 +195,17 @@ def plv_tensor(tensor):
     tensor = np.angle(sig.hilbert(tensor))
     tensor = np.exp(tensor * 1j)
     _plv = np.abs(
-        (tensor @ (np.transpose(tensor, order_change(np.arange(len(tensor.shape)), [-1, -2])) ** -1)) / np.size(tensor,
-                                                                                                                -1))
+        (
+            tensor
+            @ (
+                np.transpose(
+                    tensor, order_change(np.arange(len(tensor.shape)), [-1, -2])
+                )
+                ** -1
+            )
+        )
+        / np.size(tensor, -1)
+    )
     return _plv
 
 
@@ -214,9 +223,13 @@ def corr_tensor(tensor):
     """
     mean = tensor.mean(axis=-1, keepdims=True)
     tensor2 = tensor - mean
-    tensor3 = tensor2 @ np.transpose(tensor2, order_change(np.arange(len(tensor2.shape)), [-1, -2]))
-    tensor4 = np.sqrt(np.expand_dims(np.diagonal(tensor3, axis1=-2, axis2=-1), axis=-1) @ np.expand_dims(
-        np.diagonal(tensor3, axis1=-2, axis2=-1), axis=-2))
+    tensor3 = tensor2 @ np.transpose(
+        tensor2, order_change(np.arange(len(tensor2.shape)), [-1, -2])
+    )
+    tensor4 = np.sqrt(
+        np.expand_dims(np.diagonal(tensor3, axis1=-2, axis2=-1), axis=-1)
+        @ np.expand_dims(np.diagonal(tensor3, axis1=-2, axis2=-1), axis=-2)
+    )
     corr = tensor3 / tensor4
     return corr
 
@@ -224,7 +237,7 @@ def corr_tensor(tensor):
 @compatible_torch
 def normalize_adj_tensor(A):
     diag = np.power(A.sum(-2, keepdims=True), -0.5)
-    diag[np.isinf(diag)] = 0.
+    diag[np.isinf(diag)] = 0.0
     return transpose_tensor((A * diag), [-1, -2]) * diag
 
 
@@ -255,7 +268,7 @@ def segment_tensor(tensor, window_size, step):
 
 @compatible_torch
 def apply_threshold(tensor, thr):
-    '''
+    """
 
     Parameters
     ----------
@@ -265,7 +278,7 @@ def apply_threshold(tensor, thr):
     Returns
     -------
 
-    '''
+    """
     shape = tensor.shape
     tensor = tensor.reshape(*list(tensor.shape)[:-2], -1)
     idx = np.flip(np.argsort(tensor, axis=1), axis=1)[..., :thr]
@@ -282,7 +295,7 @@ def compatible_torch_visualization(func):
         _type = type(tensor)
         if _type == torch.Tensor:
             device = tensor.device.type
-            if device == 'cpu':
+            if device == "cpu":
                 tensor = tensor.numpy()
             else:
                 tensor = tensor.data.cpu().numpy()
@@ -326,7 +339,7 @@ def output_shape(net, input_shape):
 
 
 def uncuda(tensor):
-    assert tensor.device.type == 'cuda', "Tensor device should be cuda."
+    assert tensor.device.type == "cuda", "Tensor device should be cuda."
     return tensor.data.cpu().numpy()
 
 
@@ -335,7 +348,7 @@ def cuda(tensor):
 
 
 def band_list(string):
-    if string == 'all':
+    if string == "all":
         return [[0, 4], [4, 7], [7, 13], [13, 30], [30, 42]]
     lst = string.split(",")
     assert len(lst) % 2 == 0, "Length of the list must be even number."
